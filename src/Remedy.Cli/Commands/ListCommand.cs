@@ -9,6 +9,23 @@ public static class ListCommand
 {
     public static async Task ExecuteAsync(CommandParser parser)
     {
+        if (parser.HasFlag("--help", "-h"))
+        {
+            string helpText =
+                """
+                remedy list 
+                
+                # Arguments
+                -n --count      How many items should be displayed. Default is 3
+                -e --energy     The users current energy level
+                -t --time       Filter the resources based on the estimated time
+                -c --context    The context the user is currently in
+                -s --slot       What kind of slot the user is in
+                -a --all        Flag whether to show all items
+                """;
+            return;
+        }
+        
         var count = parser.GetIntOption(3, "--count", "-n");
         var energy = parser.GetOption<EnergyLevel>(EnergyLevel.Medium, "--energy", "-e");
         var time = parser.GetIntOption(30, "--time", "-t");
@@ -16,7 +33,7 @@ public static class ListCommand
         var slotName = parser.GetOption("--slot", "-s");
         var showAll = parser.HasFlag("--all", "-a");
 
-        using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext();
         await db.Database.EnsureCreatedAsync();
 
         if (showAll)
@@ -39,7 +56,7 @@ public static class ListCommand
         }
 
         // Build user context
-        var userContext = new UserContext
+        UserContext userContext = new UserContext
         {
             CurrentTime = DateTime.Now,
             CurrentEnergy = energy,
