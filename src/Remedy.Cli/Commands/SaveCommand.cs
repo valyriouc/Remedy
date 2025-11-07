@@ -8,6 +8,32 @@ public static class SaveCommand
 {
     public static async Task ExecuteAsync(CommandParser parser)
     {
+        bool help = parser.HasFlag("--help", "-h");
+        
+        if (help)
+        {
+            string helpText =
+                """
+                Save command: 
+                remedy save <url> <options>
+
+                # Arguments:
+                -t --title         The title of the resource
+                --type             The type of the resource (Video, Article, Book, Action, Experiment, Event)
+                --time             The estimated time it takes to work on this resource 
+                -d --difficulty    The difficulty of the resource (Easy, Medium, Hard).
+                -s --slot          The time slot where it should be consumed 
+                -c --context       The context in which the resource was saved
+                -tf --timeframe    The time frame in which the resource should be consumed
+                -e --energy        The energy in which the resource should be consumed
+                --description      A description of the resource
+                """;
+            
+            Console.Write(helpText);
+            return;
+        }
+        
+        
         var url = parser.GetArgument(1);
         var title = parser.GetOption("--title", "-t");
         var type = parser.GetOption<ResourceType>(ResourceType.Article, "--type");
@@ -18,7 +44,7 @@ public static class SaveCommand
         var timeframe = parser.GetOption<TargetTimeframe>(TargetTimeframe.ThisWeek, "--timeframe", "-tf");
         var energy = parser.GetOption<EnergyLevel>(EnergyLevel.Medium, "--energy", "-e");
         var description = parser.GetOption("--description");
-
+        
         await ExecuteInternalAsync(url, title, type, time, difficulty, slotName, context, timeframe, energy, description);
     }
 
@@ -34,7 +60,7 @@ public static class SaveCommand
         EnergyLevel energy,
         string? description)
     {
-        using var db = new RemedyDbContext();
+        using RemedyDbContext db = new RemedyDbContext();
 
         // Ensure database is created
         await db.Database.EnsureCreatedAsync();
