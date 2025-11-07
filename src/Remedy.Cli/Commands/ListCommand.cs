@@ -23,6 +23,8 @@ public static class ListCommand
                 -s --slot       What kind of slot the user is in
                 -a --all        Flag whether to show all items
                 """;
+            
+            Console.Write(helpText);
             return;
         }
         
