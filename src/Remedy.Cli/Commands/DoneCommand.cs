@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Remedy.Cli.Data;
+using Remedy.Cli.Models;
 
 namespace Remedy.Cli.Commands;
 
@@ -16,14 +17,15 @@ public static class DoneCommand
             return;
         }
 
-        var rating = parser.GetIntOption(0, "--rating", "-r");
+        int rating = parser.GetIntOption(0, "--rating", "-r");
+
         if (rating < 0) rating = 0;
         if (rating > 5) rating = 5;
 
-        using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext();
         await db.Database.EnsureCreatedAsync();
 
-        var resource = await db.Resources.FindAsync(id.Value);
+        Resource? resource = await db.Resources.FindAsync(id.Value);
 
         if (resource == null)
         {
@@ -45,6 +47,7 @@ public static class DoneCommand
         // Update resource
         resource.IsCompleted = true;
         resource.CompletedAt = DateTime.Now;
+        
         if (rating > 0)
         {
             resource.Rating = rating;
@@ -60,13 +63,12 @@ public static class DoneCommand
         }
 
         // Show stats
-        var totalCompleted = await db.Resources.CountAsync(r => r.IsCompleted);
+        int totalCompleted = await db.Resources.CountAsync(r => r.IsCompleted);
         var avgRating = await db.Resources
             .Where(r => r.IsCompleted && r.Rating.HasValue)
             .Select(r => r.Rating!.Value)
-            .DefaultIfEmpty(0)
             .AverageAsync();
-
+        
         Console.WriteLine($"\nStats: {totalCompleted} resources completed");
         if (avgRating > 0)
         {
