@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Remedy.Cli.Models;
+namespace Remedy.Shared.Models;
 
-public class Resource
+public class Resource : SyncableEntity
 {
-    [Key]
-    public Guid Id { get; set; }
 
     public ResourceType Type { get; set; }
 

@@ -1,4 +1,5 @@
-using Remedy.Cli.Data;
+using Remedy.Shared.Data;
+using Remedy.Shared.Services;
 
 namespace Remedy.Cli.Commands;
 
@@ -17,7 +18,7 @@ public static class SnoozeCommand
 
         var days = parser.GetIntOption(3, "--days", "-d");
 
-        using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext();
         await db.Database.EnsureCreatedAsync();
 
         var resource = await db.Resources.FindAsync(id.Value);
@@ -40,6 +41,10 @@ public static class SnoozeCommand
 
         // Apply snooze penalty to priority
         resource.Priority *= 0.9; // Reduce priority by 10%
+
+        // Mark for sync
+        var syncService = new SyncService(db);
+        syncService.MarkForSync(resource);
 
         await db.SaveChangesAsync();
 

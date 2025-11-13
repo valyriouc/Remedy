@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Remedy.Cli.Data;
-using Remedy.Cli.Models;
+using Remedy.Shared.Data;
 using Remedy.Cli.Services;
+using Remedy.Shared.Models;
 
 namespace Remedy.Cli.Commands;
 
@@ -29,7 +29,7 @@ public static class ListCommand
         }
         
         var count = parser.GetIntOption(3, "--count", "-n");
-        var energy = parser.GetOption<EnergyLevel>(EnergyLevel.Medium, "--energy", "-e");
+        var energy = parser.GetOption(EnergyLevel.Medium, "--energy", "-e");
         var time = parser.GetIntOption(30, "--time", "-t");
         var context = parser.GetOption("--context", "-c");
         var slotName = parser.GetOption("--slot", "-s");

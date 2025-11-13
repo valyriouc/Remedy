@@ -1,5 +1,6 @@
 using System.Diagnostics;
-using Remedy.Cli.Data;
+using Remedy.Shared.Data;
+using Remedy.Shared.Services;
 
 namespace Remedy.Cli.Commands;
 
@@ -7,7 +8,7 @@ public static class StartCommand
 {
     public static async Task ExecuteAsync(CommandParser parser)
     {
-        var id = parser.GetGuidArgument(1);
+        Guid? id = parser.GetGuidArgument(1);
 
         if (!id.HasValue)
         {
@@ -16,7 +17,7 @@ public static class StartCommand
             return;
         }
 
-        using var db = new RemedyDbContext();
+        await using RemedyDbContext db = new RemedyDbContext();
         await db.Database.EnsureCreatedAsync();
 
         var resource = await db.Resources.FindAsync(id.Value);
@@ -34,6 +35,11 @@ public static class StartCommand
 
         // Update last reminded
         resource.LastReminded = DateTime.Now;
+
+        // Mark for sync
+        var syncService = new SyncService(db);
+        syncService.MarkForSync(resource);
+
         await db.SaveChangesAsync();
 
         Console.WriteLine($"Starting: {resource.Title}");

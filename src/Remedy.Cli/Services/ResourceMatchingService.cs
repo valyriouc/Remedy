@@ -1,18 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Remedy.Cli.Data;
-using Remedy.Cli.Models;
+using Remedy.Shared.Data;
+using Remedy.Shared.Models;
 
 namespace Remedy.Cli.Services;
 
-public class ResourceMatchingService
+public class ResourceMatchingService(RemedyDbContext context)
 {
-    private readonly RemedyDbContext _context;
-
-    public ResourceMatchingService(RemedyDbContext context)
-    {
-        _context = context;
-    }
-
     /// <summary>
     /// Calculates priority decay based on multiple factors
     /// </summary>
@@ -133,7 +126,7 @@ public class ResourceMatchingService
     public async Task<List<Resource>> GetOptimalResourcesAsync(UserContext userContext, int count = 3)
     {
         // Filter candidates by basic criteria
-        var candidates = await _context.Resources
+        var candidates = await context.Resources
             .Include(r => r.PreferredTimeSlot)
             .Where(r => !r.IsCompleted)
             .Where(r => r.EstimatedTimeMinutes <= userContext.AvailableDurationMinutes)
@@ -158,7 +151,7 @@ public class ResourceMatchingService
     /// </summary>
     public async Task UpdateAllPrioritiesAsync()
     {
-        var resources = await _context.Resources
+        var resources = await context.Resources
             .Where(r => !r.IsCompleted)
             .ToListAsync();
 
@@ -170,6 +163,6 @@ public class ResourceMatchingService
             resource.Priority = decayedPriority;
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 }

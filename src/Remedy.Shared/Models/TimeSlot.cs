@@ -1,11 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Remedy.Cli.Models;
+namespace Remedy.Shared.Models;
 
-public class TimeSlot
+public class TimeSlot : SyncableEntity
 {
-    [Key]
-    public Guid Id { get; set; }
 
     [Required]
     public string Name { get; set; } = string.Empty;

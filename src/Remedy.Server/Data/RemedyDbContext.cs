@@ -1,11 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Remedy.Shared.Models;
 
-namespace Remedy.Cli.Data;
+namespace Remedy.Server.Data;
 
 public class RemedyDbContext : DbContext
 {
     public DbSet<Resource> Resources { get; set; }
+    
     public DbSet<TimeSlot> TimeSlots { get; set; }
 
     public string DbPath { get; }
@@ -18,10 +19,8 @@ public class RemedyDbContext : DbContext
         DbPath = Path.Combine(remedyFolder, "remedy.db");
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
+    protected override void OnConfiguring(DbContextOptionsBuilder options) => 
         options.UseSqlite($"Data Source={DbPath}");
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

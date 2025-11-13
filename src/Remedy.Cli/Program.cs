@@ -1,5 +1,5 @@
 ﻿using Remedy.Cli.Commands;
-using Remedy.Cli.Data;
+using Remedy.Shared.Data;
 
 namespace Remedy.Cli;
 
@@ -41,6 +41,9 @@ class Program
                 case "config":
                     await ConfigCommand.ExecuteAsync(parser);
                     break;
+                case "sync":
+                    await SyncCommand.ExecuteAsync(parser);
+                    break;
                 case "version":
                     ShowVersion();
                     break;
@@ -76,6 +79,7 @@ class Program
         Console.WriteLine("  done      Mark a resource as completed");
         Console.WriteLine("  snooze    Snooze a resource for later");
         Console.WriteLine("  config    Configure time slots and settings");
+        Console.WriteLine("  sync      Synchronize with server");
         Console.WriteLine("  version   Show version information");
         Console.WriteLine("  help      Show this help message");
         Console.WriteLine();

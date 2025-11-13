@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Remedy.Cli.Data;
-using Remedy.Cli.Models;
+using Remedy.Shared.Data;
+using Remedy.Shared.Models;
+using Remedy.Shared.Services;
 
 namespace Remedy.Cli.Commands;
 
@@ -47,12 +48,16 @@ public static class DoneCommand
         // Update resource
         resource.IsCompleted = true;
         resource.CompletedAt = DateTime.Now;
-        
+
         if (rating > 0)
         {
             resource.Rating = rating;
             resource.RelevanceScore = rating / 5.0;
         }
+
+        // Mark for sync
+        var syncService = new SyncService(db);
+        syncService.MarkForSync(resource);
 
         await db.SaveChangesAsync();
 

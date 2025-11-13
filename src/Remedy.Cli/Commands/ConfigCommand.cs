@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Remedy.Cli.Data;
-using Remedy.Cli.Models;
+using Remedy.Shared.Data;
+using Remedy.Shared.Models;
+using Remedy.Shared.Services;
 
 namespace Remedy.Cli.Commands;
 
@@ -8,7 +9,7 @@ public static class ConfigCommand
 {
     public static async Task ExecuteAsync(CommandParser parser)
     {
-        var subCommand = parser.GetSubCommand();
+        string? subCommand = parser.GetSubCommand();
 
         switch (subCommand)
         {
@@ -46,7 +47,7 @@ public static class ConfigCommand
 
     private static async Task ListSlotsAsync()
     {
-        using var db = new RemedyDbContext();
+        await using RemedyDbContext db = new RemedyDbContext();
         await db.Database.EnsureCreatedAsync();
 
         var slots = await db.TimeSlots.ToListAsync();
@@ -88,10 +89,10 @@ public static class ConfigCommand
         }
 
         var duration = parser.GetIntOption(60, "--duration", "-d");
-        var energy = parser.GetOption<EnergyLevel>(EnergyLevel.Medium, "--energy", "-e");
+        var energy = parser.GetOption(EnergyLevel.Medium, "--energy", "-e");
         var typesStr = parser.GetOption("--types", "-t");
 
-        using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext();
         await db.Database.EnsureCreatedAsync();
 
         var slot = new TimeSlot
@@ -104,8 +105,8 @@ public static class ConfigCommand
 
         if (!string.IsNullOrWhiteSpace(typesStr))
         {
-            var resourceTypes = new List<ResourceType>();
-            foreach (var typeStr in typesStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            List<ResourceType> resourceTypes = new List<ResourceType>();
+            foreach (string typeStr in typesStr.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
                 if (Enum.TryParse<ResourceType>(typeStr.Trim(), true, out var resourceType))
                 {
@@ -120,6 +121,11 @@ public static class ConfigCommand
         }
 
         db.TimeSlots.Add(slot);
+
+        // Mark for sync
+        var syncService = new SyncService(db);
+        syncService.MarkForSync(slot);
+
         await db.SaveChangesAsync();
 
         Console.WriteLine($"✓ Time slot created: {name}");
@@ -194,6 +200,14 @@ public static class ConfigCommand
         };
 
         db.TimeSlots.AddRange(defaultSlots);
+
+        // Mark all for sync
+        var syncService = new SyncService(db);
+        foreach (var slot in defaultSlots)
+        {
+            syncService.MarkForSync(slot);
+        }
+
         await db.SaveChangesAsync();
 
         Console.WriteLine($"✓ Created {defaultSlots.Length} default time slots:\n");

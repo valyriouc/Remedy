@@ -1,4 +1,5 @@
-namespace Remedy.Cli.Models;
+
+namespace Remedy.Shared.Models;
 
 /// <summary>
 /// Represents the current user context for resource matching

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Remedy.Cli.Data;
-using Remedy.Cli.Models;
+using Remedy.Shared.Data;
+using Remedy.Shared.Models;
+using Remedy.Shared.Services;
 
 namespace Remedy.Cli.Commands;
 
@@ -33,7 +34,6 @@ public static class SaveCommand
             return;
         }
         
-        
         var url = parser.GetArgument(1);
         var title = parser.GetOption("--title", "-t");
         var type = parser.GetOption<ResourceType>(ResourceType.Article, "--type");
@@ -41,7 +41,7 @@ public static class SaveCommand
         var difficulty = parser.GetOption<Difficulty>(Difficulty.Medium, "--difficulty", "-d");
         var slotName = parser.GetOption("--slot", "-s");
         var context = parser.GetOption("--context", "-c");
-        var timeframe = parser.GetOption<TargetTimeframe>(TargetTimeframe.ThisWeek, "--timeframe", "-tf");
+        var timeframe = parser.GetOption(TargetTimeframe.ThisWeek, "--timeframe", "-tf");
         var energy = parser.GetOption<EnergyLevel>(EnergyLevel.Medium, "--energy", "-e");
         var description = parser.GetOption("--description");
         
@@ -60,7 +60,7 @@ public static class SaveCommand
         EnergyLevel energy,
         string? description)
     {
-        using RemedyDbContext db = new RemedyDbContext();
+        await using RemedyDbContext db = new RemedyDbContext();
 
         // Ensure database is created
         await db.Database.EnsureCreatedAsync();
@@ -121,6 +121,11 @@ public static class SaveCommand
         };
 
         db.Resources.Add(resource);
+
+        // Mark for sync (new resource starts as PendingSync)
+        var syncService = new SyncService(db);
+        syncService.MarkForSync(resource);
+
         await db.SaveChangesAsync();
 
         Console.WriteLine($"✓ Resource saved: {title}");
