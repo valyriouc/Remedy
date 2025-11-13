@@ -35,7 +35,7 @@ public static class ListCommand
         var slotName = parser.GetOption("--slot", "-s");
         var showAll = parser.HasFlag("--all", "-a");
 
-        await using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         if (showAll)

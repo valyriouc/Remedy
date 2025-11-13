@@ -17,7 +17,7 @@ public static class StartCommand
             return;
         }
 
-        await using RemedyDbContext db = new RemedyDbContext();
+        await using RemedyDbContext db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         var resource = await db.Resources.FindAsync(id.Value);

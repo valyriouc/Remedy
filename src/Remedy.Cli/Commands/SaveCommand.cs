@@ -60,7 +60,7 @@ public static class SaveCommand
         EnergyLevel energy,
         string? description)
     {
-        await using RemedyDbContext db = new RemedyDbContext();
+        await using RemedyDbContext db = new RemedyDbContext(Program.DatabaseName);
 
         // Ensure database is created
         await db.Database.EnsureCreatedAsync();

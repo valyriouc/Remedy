@@ -37,7 +37,7 @@ public static class SyncCommand
     {
         Console.WriteLine("Starting synchronization...");
 
-        using var context = new RemedyDbContext();
+        await using var context = new RemedyDbContext(Program.DatabaseName);
         await context.Database.EnsureCreatedAsync();
 
         var orchestrator = new SyncOrchestrator(context);
@@ -74,7 +74,7 @@ public static class SyncCommand
         Console.WriteLine($"Last sync: {config.LastSyncTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "never"}");
         Console.WriteLine();
 
-        using var context = new RemedyDbContext();
+        using var context = new RemedyDbContext(Program.DatabaseName);
         await context.Database.EnsureCreatedAsync();
 
         var orchestrator = new SyncOrchestrator(context);
@@ -127,7 +127,7 @@ public static class SyncCommand
 
     private static async Task ResetFailedAsync()
     {
-        using var context = new RemedyDbContext();
+        using var context = new RemedyDbContext(Program.DatabaseName);
         await context.Database.EnsureCreatedAsync();
 
         var syncService = new SyncService(context);

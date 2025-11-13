@@ -23,7 +23,7 @@ public static class DoneCommand
         if (rating < 0) rating = 0;
         if (rating > 5) rating = 5;
 
-        await using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         Resource? resource = await db.Resources.FindAsync(id.Value);

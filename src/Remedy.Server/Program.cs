@@ -32,7 +32,7 @@ public class Program
         // Ensure database is created
         using (var scope = app.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<RemedyDbContext>();
+            RemedyDbContext db = scope.ServiceProvider.GetRequiredService<RemedyDbContext>();
             await db.Database.EnsureCreatedAsync();
         }
 
@@ -46,6 +46,6 @@ public class Program
         app.UseCors();
         app.MapControllers();
 
-        app.Run();
+        await app.RunAsync();
     }
 }

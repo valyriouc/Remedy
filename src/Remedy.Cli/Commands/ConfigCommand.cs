@@ -47,7 +47,7 @@ public static class ConfigCommand
 
     private static async Task ListSlotsAsync()
     {
-        await using RemedyDbContext db = new RemedyDbContext();
+        await using RemedyDbContext db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         var slots = await db.TimeSlots.ToListAsync();
@@ -92,7 +92,7 @@ public static class ConfigCommand
         var energy = parser.GetOption(EnergyLevel.Medium, "--energy", "-e");
         var typesStr = parser.GetOption("--types", "-t");
 
-        await using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         var slot = new TimeSlot
@@ -140,7 +140,7 @@ public static class ConfigCommand
 
     private static async Task InitializeDefaultSlotsAsync()
     {
-        using var db = new RemedyDbContext();
+        using var db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         var existingCount = await db.TimeSlots.CountAsync();

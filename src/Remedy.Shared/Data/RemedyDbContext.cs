@@ -10,20 +10,20 @@ public class RemedyDbContext : DbContext
 
     public string DbPath { get; }
 
-    public RemedyDbContext()
+    public RemedyDbContext(string? databaseName=null)
     {
         var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var remedyFolder = Path.Combine(folder, "Remedy");
         Directory.CreateDirectory(remedyFolder);
-        DbPath = Path.Combine(remedyFolder, "remedy.db");
+        DbPath = Path.Combine(remedyFolder, databaseName ?? "sync.db");
     }
 
-    public RemedyDbContext(DbContextOptions<RemedyDbContext> options) : base(options)
+    public RemedyDbContext(DbContextOptions<RemedyDbContext> options, string? databaseName=null) : base(options)
     {
         var folder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var remedyFolder = Path.Combine(folder, "Remedy");
         Directory.CreateDirectory(remedyFolder);
-        DbPath = Path.Combine(remedyFolder, "remedy.db");
+        DbPath = Path.Combine(remedyFolder, databaseName ?? "sync.db");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)

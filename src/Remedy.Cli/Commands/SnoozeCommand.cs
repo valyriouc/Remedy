@@ -18,7 +18,7 @@ public static class SnoozeCommand
 
         var days = parser.GetIntOption(3, "--days", "-d");
 
-        await using var db = new RemedyDbContext();
+        await using var db = new RemedyDbContext(Program.DatabaseName);
         await db.Database.EnsureCreatedAsync();
 
         var resource = await db.Resources.FindAsync(id.Value);

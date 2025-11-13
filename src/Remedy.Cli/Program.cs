@@ -1,10 +1,13 @@
-﻿using Remedy.Cli.Commands;
+﻿using Microsoft.EntityFrameworkCore;
+using Remedy.Cli.Commands;
 using Remedy.Shared.Data;
 
 namespace Remedy.Cli;
 
 class Program
 {
+    internal const string DatabaseName = "remedy.db";
+    
     static async Task<int> Main(string[] args)
     {
         // Ensure database is created on first run
@@ -99,7 +102,7 @@ class Program
     {
         try
         {
-            using var db = new RemedyDbContext();
+            using var db = new RemedyDbContext(DatabaseName);
             await db.Database.EnsureCreatedAsync();
         }
         catch (Exception ex)
